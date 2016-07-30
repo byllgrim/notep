@@ -17,14 +17,18 @@ static void font_activate(void);
 static void select_activate(GtkWidget *w);
 static void cancel_activate(GtkWidget *w);
 
-static void load_file(char *filename);
+static void load_file(void);
+static void save_file(void);
 
 /* Variables */
 static GtkWidget *window;
 static GtkWidget *text_view;
 static GtkWidget *font_chooser;
+static GtkTextBuffer *buffer;
 static PangoFontDescription *font;
 static GtkBuilder *builder;
+static int saved = 0;
+static char *filename = NULL;
 
 /* Function definitions */
 void
@@ -55,6 +59,8 @@ activate(GtkApplication *app, gpointer user_data)
 	gtk_widget_set_vexpand(text_view, TRUE);
 	gtk_grid_attach_next_to(GTK_GRID(grid), text_view, menu_bar,
 	                        GTK_POS_BOTTOM, 1, 1);
+
+	buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(text_view));
 
 	gtk_widget_show_all(window);
 }
@@ -122,6 +128,7 @@ open_activate(void)
 	GtkWidget *file_chooser;
 	gint res;
 
+	/* TODO if unsaved changes */
 	file_chooser = gtk_file_chooser_dialog_new("Open file", window,
 	                                           GTK_FILE_CHOOSER_ACTION_OPEN,
 	                                           "_Cancel",
@@ -131,9 +138,11 @@ open_activate(void)
 	                                           NULL);
 	res = gtk_dialog_run(file_chooser);
 
-	if (res == GTK_RESPONSE_ACCEPT)
-		load_file(gtk_file_chooser_get_filename(
-			GTK_FILE_CHOOSER(file_chooser)));
+	if (res == GTK_RESPONSE_ACCEPT) {
+		filename = gtk_file_chooser_get_filename(
+			GTK_FILE_CHOOSER(file_chooser));
+		load_file();
+	}
 
 	gtk_widget_destroy(file_chooser);
 }
@@ -142,6 +151,9 @@ void
 save_activate(void)
 {
 	g_print("save\n");
+
+	if (gtk_text_buffer_get_modified(buffer) == TRUE)
+		(saved) ? save_file() : saveas_activate();
 }
 
 void
@@ -153,8 +165,6 @@ saveas_activate(void)
 void
 font_activate(void)
 {
-	GtkTextBuffer *buffer;
-
 	font_chooser = create_font_chooser();
 	gtk_dialog_run(GTK_DIALOG(font_chooser));
 	/* TODO GTK_RESPONSE_CANCEL */
@@ -188,14 +198,11 @@ cancel_activate(GtkWidget *w)
 }
 
 void
-load_file(char *filename)
+load_file(void)
 {
 	FILE *file;
 	long length;
 	char *text;
-	GtkTextBuffer *buffer;
-
-	buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(text_view));
 
 	file = fopen(filename, "r");
 	fseek(file, 0, SEEK_END);
@@ -206,6 +213,35 @@ load_file(char *filename)
 	fread(text, sizeof(char), length, file);
 	text[length] = '\0';
 	gtk_text_buffer_set_text(buffer, text, length);
+
+	saved = 1;
+	gtk_text_buffer_set_modified(buffer, FALSE);
+	fclose(file);
+}
+
+void
+save_file(void)
+{
+	FILE *file;
+	size_t length;
+	char *text;
+	GtkTextIter *start;
+	GtkTextIter *end;
+g_print("save_file\n");
+
+	start = malloc(sizeof(GtkTextIter));
+	end = malloc(sizeof(GtkTextIter));
+
+	file = fopen(filename, "w");
+	length = (size_t)gtk_text_buffer_get_char_count(buffer);
+	gtk_text_buffer_get_start_iter(buffer, start);
+	gtk_text_buffer_get_end_iter(buffer, end);
+	text = gtk_text_buffer_get_text(buffer, start, end, TRUE);
+	fprintf(file, "%s", text);
+
+	saved = 1;
+	gtk_text_buffer_set_modified(buffer, FALSE);
+	fclose(file);
 }
 
 int
