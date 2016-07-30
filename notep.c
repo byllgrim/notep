@@ -1,4 +1,6 @@
 #include <gtk/gtk.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 #include "config.h"
 
@@ -15,10 +17,12 @@ static void font_activate(void);
 static void select_activate(GtkWidget *w);
 static void cancel_activate(GtkWidget *w);
 
+static void load_file(char *filename);
+
 /* Variables */
 static GtkWidget *window;
 static GtkWidget *text_view;
-static GtkWidget *chooser;
+static GtkWidget *font_chooser;
 static PangoFontDescription *font;
 static GtkBuilder *builder;
 
@@ -95,11 +99,11 @@ create_font_chooser(void)
 	GObject *select;
 	GObject *cancel;
 
-	chooser = gtk_font_chooser_dialog_new(NULL, GTK_WINDOW(window));
+	font_chooser = gtk_font_chooser_dialog_new(NULL, GTK_WINDOW(window));
 
-        select = gtk_buildable_get_internal_child(GTK_BUILDABLE(chooser),
+        select = gtk_buildable_get_internal_child(GTK_BUILDABLE(font_chooser),
                                                   builder, "select_button");
-        cancel = gtk_buildable_get_internal_child(GTK_BUILDABLE(chooser),
+        cancel = gtk_buildable_get_internal_child(GTK_BUILDABLE(font_chooser),
                                                   builder, "cancel_button");
 
         g_signal_connect(select, "button-press-event",
@@ -107,15 +111,31 @@ create_font_chooser(void)
         g_signal_connect(cancel, "button-press-event",
                          G_CALLBACK(cancel_activate), NULL);
 
-	/* TODO gtk_font_chooser_set_font(chooser, font); */
+	/* TODO gtk_font_chooser_set_font(font_chooser, font); */
 
-	return chooser;
+	return font_chooser;
 }
 
 void
 open_activate(void)
 {
-	g_print("open\n");
+	GtkWidget *file_chooser;
+	gint res;
+
+	file_chooser = gtk_file_chooser_dialog_new("Open file", window,
+	                                           GTK_FILE_CHOOSER_ACTION_OPEN,
+	                                           "_Cancel",
+	                                           GTK_RESPONSE_CANCEL,
+	                                           "_Open",
+	                                           GTK_RESPONSE_ACCEPT,
+	                                           NULL);
+	res = gtk_dialog_run(file_chooser);
+
+	if (res == GTK_RESPONSE_ACCEPT)
+		load_file(gtk_file_chooser_get_filename(
+			GTK_FILE_CHOOSER(file_chooser)));
+
+	gtk_widget_destroy(file_chooser);
 }
 
 void
@@ -135,16 +155,17 @@ font_activate(void)
 {
 	GtkTextBuffer *buffer;
 
-	chooser = create_font_chooser();
-	gtk_dialog_run(GTK_DIALOG(chooser));
+	font_chooser = create_font_chooser();
+	gtk_dialog_run(GTK_DIALOG(font_chooser));
+	/* TODO GTK_RESPONSE_CANCEL */
 
-	/* TODO unref chooser? */
+	/* TODO unref font_chooser? */
 }
 
 void
 select_activate(GtkWidget *w)
 {
-	font = gtk_font_chooser_get_font_desc(GTK_FONT_CHOOSER(chooser));
+	font = gtk_font_chooser_get_font_desc(GTK_FONT_CHOOSER(font_chooser));
 	gtk_widget_override_font(text_view, font);
 	pango_font_description_free(font);
 	cancel_activate(w);
@@ -164,6 +185,27 @@ cancel_activate(GtkWidget *w)
 
 	g_print("cancel\n");
 	gtk_window_close(GTK_WINDOW(parent));
+}
+
+void
+load_file(char *filename)
+{
+	FILE *file;
+	long length;
+	char *text;
+	GtkTextBuffer *buffer;
+
+	buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(text_view));
+
+	file = fopen(filename, "r");
+	fseek(file, 0, SEEK_END);
+	length = ftell(file);
+	fseek(file, 0, SEEK_SET);
+
+	text = malloc((size_t)(length + 1)); /* TODO error checking */
+	fread(text, sizeof(char), length, file);
+	text[length] = '\0';
+	gtk_text_buffer_set_text(buffer, text, length);
 }
 
 int
