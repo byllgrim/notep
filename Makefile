@@ -6,8 +6,12 @@ LDFLAGS = ${GTKLIB}
 
 PREFIX = /usr/local
 
-all:
+#TODO fix this makefile
+all: config.h
 	cc ${CFLAGS} -o notep notep.c ${LDFLAGS}
+
+config.h:
+	cp config.def.h config.h
 
 install:
 	mkdir -p ${DESTDIR}${PREFIX}/bin
