@@ -159,7 +159,36 @@ save_activate(void)
 void
 saveas_activate(void)
 {
-	g_print("saveas\n");
+	GtkWidget *dialog;
+	GtkFileChooser *chooser;
+	gint res;
+g_print("saveas\n");
+
+	if ((gtk_text_buffer_get_modified(buffer) == FALSE) && (!saved))
+		return;
+
+	dialog = gtk_file_chooser_dialog_new("Open file", window,
+	                                     GTK_FILE_CHOOSER_ACTION_SAVE,
+	                                     "_Cancel",
+	                                     GTK_RESPONSE_CANCEL,
+	                                     "_Save",
+	                                     GTK_RESPONSE_ACCEPT,
+	                                     NULL);
+
+	chooser = GTK_FILE_CHOOSER(dialog);
+	gtk_file_chooser_set_do_overwrite_confirmation(chooser, TRUE);
+
+	if (filename)
+		gtk_file_chooser_set_filename(chooser, filename);
+
+	res = gtk_dialog_run(GTK_DIALOG(dialog));
+	if (res == GTK_RESPONSE_ACCEPT) {
+		/* TODO g_free filename? */
+		filename = gtk_file_chooser_get_filename(chooser);
+		save_file();
+	}
+
+	gtk_widget_destroy(dialog);
 }
 
 void
