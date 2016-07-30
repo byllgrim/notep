@@ -6,6 +6,7 @@ this software is under construction and not usable
 
 # dependencies
 gtk+ (╯°□°╯ ┻━┻
+
 i use v3. dont know about compatibility
 
 # installation
