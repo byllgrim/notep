@@ -164,9 +164,6 @@ saveas_activate(void)
 	gint res;
 g_print("saveas\n");
 
-	if ((gtk_text_buffer_get_modified(buffer) == FALSE) && (!saved))
-		return;
-
 	dialog = gtk_file_chooser_dialog_new("Open file", window,
 	                                     GTK_FILE_CHOOSER_ACTION_SAVE,
 	                                     "_Cancel",
