@@ -1,3 +1,4 @@
+# See LICENSE file for copyright and license details.
 GTKINC = `pkg-config --cflags gtk+-3.0 webkit2gtk-4.0`
 GTKLIB = `pkg-config --libs gtk+-3.0 webkit2gtk-4.0`
 
@@ -17,3 +18,6 @@ install:
 	mkdir -p ${DESTDIR}${PREFIX}/bin
 	cp -f notep ${DESTDIR}${PREFIX}/bin
 	chmod 755 ${DESTDIR}${PREFIX}/bin/notep
+
+clean:
+	rm -f notep
