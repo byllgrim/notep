@@ -164,7 +164,6 @@ open_activate(void)
 int
 save_activate(void)
 {
-	g_print("save\n");
 	int res = NO;
 
 	if ((gtk_text_buffer_get_modified(buffer) == TRUE) || !saved)
@@ -179,7 +178,6 @@ saveas_activate(void)
 	GtkWidget *dialog;
 	GtkFileChooser *chooser;
 	gint res;
-g_print("saveas\n");
 
 	dialog = gtk_file_chooser_dialog_new("Save file", window,
 	                                     GTK_FILE_CHOOSER_ACTION_SAVE,
@@ -241,7 +239,6 @@ cancel_activate(GtkWidget *w)
 	 * TODO can it be done prettier?
 	 */
 
-	g_print("cancel\n");
 	gtk_window_close(GTK_WINDOW(parent));
 }
 
@@ -275,7 +272,6 @@ save_file(void)
 	char *text;
 	GtkTextIter *start;
 	GtkTextIter *end;
-g_print("save_file\n");
 
 	start = malloc(sizeof(GtkTextIter));
 	end = malloc(sizeof(GtkTextIter));
