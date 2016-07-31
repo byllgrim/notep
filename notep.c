@@ -4,21 +4,25 @@
 
 #include "config.h"
 
+/* Types */
+enum {YES, NO, CANCEL}; /* unsaved_dialog */
+
 /* Function declarations */
 static void activate(GtkApplication *app, gpointer user_data);
-
 static GtkWidget *create_menu_bar(void);
 static GtkWidget *create_font_chooser(void);
 
 static void open_activate(void);
-static void save_activate(void);
-static void saveas_activate(void);
+static int save_activate(void);
+static int saveas_activate(void);
 static void font_activate(void);
 static void select_activate(GtkWidget *w);
 static void cancel_activate(GtkWidget *w);
 
 static void load_file(void);
-static void save_file(void);
+static int save_file(void);
+static int unsaved_dialog(void);
+static void exit_notep(void);
 
 /* Variables */
 static GtkWidget *window;
@@ -44,6 +48,7 @@ activate(GtkApplication *app, gpointer user_data)
 	/* TODO GDK_KEY_PRESS_MASK and key-press-event */
 	gtk_window_set_title(GTK_WINDOW(window), "notep");
 	gtk_window_set_default_size(GTK_WINDOW(window), 320, 240);
+	g_signal_connect(window, "delete-event", G_CALLBACK(exit_notep), NULL);
 
 	grid = gtk_grid_new();
 	gtk_container_add(GTK_CONTAINER(window), grid);
@@ -127,8 +132,17 @@ open_activate(void)
 {
 	GtkWidget *file_chooser;
 	gint res;
+	int prompt;
 
-	/* TODO if unsaved changes */
+	if (gtk_text_buffer_get_modified(buffer) == TRUE) {
+		prompt = unsaved_dialog();
+		if (prompt ==  YES)
+			prompt = save_activate();
+		if (prompt == CANCEL)
+			return;
+		/* else 'button no' continues as normal */
+	}
+
 	file_chooser = gtk_file_chooser_dialog_new("Open file", window,
 	                                           GTK_FILE_CHOOSER_ACTION_OPEN,
 	                                           "_Cancel",
@@ -147,16 +161,19 @@ open_activate(void)
 	gtk_widget_destroy(file_chooser);
 }
 
-void
+int
 save_activate(void)
 {
 	g_print("save\n");
+	int res = NO;
 
 	if ((gtk_text_buffer_get_modified(buffer) == TRUE) || !saved)
-		(saved) ? save_file() : saveas_activate();
+		res = saved ? save_file() : saveas_activate();
+
+	return res; /* TODO verify correctness of this return */
 }
 
-void
+int
 saveas_activate(void)
 {
 	GtkWidget *dialog;
@@ -164,7 +181,7 @@ saveas_activate(void)
 	gint res;
 g_print("saveas\n");
 
-	dialog = gtk_file_chooser_dialog_new("Open file", window,
+	dialog = gtk_file_chooser_dialog_new("Save file", window,
 	                                     GTK_FILE_CHOOSER_ACTION_SAVE,
 	                                     "_Cancel",
 	                                     GTK_RESPONSE_CANCEL,
@@ -177,15 +194,20 @@ g_print("saveas\n");
 
 	if (filename)
 		gtk_file_chooser_set_filename(chooser, filename);
+		/* TODO is this nescessary? */
 
 	res = gtk_dialog_run(GTK_DIALOG(dialog));
 	if (res == GTK_RESPONSE_ACCEPT) {
 		/* TODO g_free filename? */
 		filename = gtk_file_chooser_get_filename(chooser);
 		save_file();
+		res = YES;
+	} else {
+		res = CANCEL;
 	}
 
 	gtk_widget_destroy(dialog);
+	return res;
 }
 
 void
@@ -245,7 +267,7 @@ load_file(void)
 	fclose(file);
 }
 
-void
+int
 save_file(void)
 {
 	FILE *file;
@@ -268,6 +290,45 @@ g_print("save_file\n");
 	saved = 1;
 	gtk_text_buffer_set_modified(buffer, FALSE);
 	fclose(file);
+	return YES;
+}
+
+int
+unsaved_dialog(void)
+{
+	GtkDialog *dialog;
+	gint res;
+
+	dialog = gtk_message_dialog_new(window,
+	                                GTK_DIALOG_MODAL,
+	                                GTK_MESSAGE_QUESTION,
+	                                GTK_BUTTONS_NONE,
+	                                "The document has been modified.\n"
+	                                "Save changes?");
+	gtk_dialog_add_buttons(dialog,
+	                       "Yes", YES,
+	                       "No", NO,
+	                       "Cancel", CANCEL, NULL);
+
+	res = gtk_dialog_run(dialog);
+	gtk_widget_destroy(dialog);
+	return res;
+}
+
+void
+exit_notep(void)
+{
+	int prompt;
+
+	if (gtk_text_buffer_get_modified(buffer) == TRUE) {
+		prompt = unsaved_dialog();
+		if (prompt ==  YES)
+			prompt = save_activate();
+		if (prompt == CANCEL)
+			return;
+	}
+
+	exit(EXIT_SUCCESS);
 }
 
 int
