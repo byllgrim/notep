@@ -11,6 +11,7 @@ enum {YES, NO, CANCEL}; /* unsaved_dialog */
 /* Function declarations */
 static void activate(GtkApplication *app, gpointer user_data);
 static GtkWidget *create_menu_bar(void);
+static GtkWidget *create_text_view(void);
 static GtkWidget *create_font_chooser(void);
 
 static void open_activate(void);
@@ -57,12 +58,7 @@ activate(GtkApplication *app, gpointer user_data)
 	menu_bar = create_menu_bar();
 	gtk_grid_attach(GTK_GRID(grid), menu_bar, 0, 0, 1, 1);
 
-	text_view = gtk_text_view_new();
-	gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(text_view), GTK_WRAP_WORD);
-	gtk_widget_override_font(text_view, font);
-	pango_font_description_free(font);
-	gtk_widget_set_hexpand(text_view, TRUE);
-	gtk_widget_set_vexpand(text_view, TRUE);
+	text_view = create_text_view();
 	gtk_grid_attach_next_to(GTK_GRID(grid), text_view, menu_bar,
 	                        GTK_POS_BOTTOM, 1, 1);
 
@@ -103,6 +99,20 @@ create_menu_bar(void)
 	gtk_menu_shell_append(GTK_MENU_SHELL(menu_bar), font);
 
 	return menu_bar;
+}
+
+GtkWidget *
+create_text_view(void)
+{
+	GtkWidget *text_view = gtk_text_view_new();
+
+	gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(text_view), GTK_WRAP_WORD);
+	gtk_widget_override_font(text_view, font);
+	pango_font_description_free(font);
+	gtk_widget_set_hexpand(text_view, TRUE);
+	gtk_widget_set_vexpand(text_view, TRUE);
+
+	return text_view;
 }
 
 GtkWidget *
