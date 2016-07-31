@@ -152,7 +152,7 @@ save_activate(void)
 {
 	g_print("save\n");
 
-	if (gtk_text_buffer_get_modified(buffer) == TRUE)
+	if ((gtk_text_buffer_get_modified(buffer) == TRUE) || !saved)
 		(saved) ? save_file() : saveas_activate();
 }
 
