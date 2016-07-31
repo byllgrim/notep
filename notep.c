@@ -18,8 +18,7 @@ static void open_activate(void);
 static int save_activate(void);
 static int saveas_activate(void);
 static void font_activate(void);
-static void select_activate(GtkWidget *w);
-static void cancel_activate(GtkWidget *w);
+static void select_font(void);
 
 static void load_file(void);
 static int save_file(void);
@@ -108,7 +107,6 @@ create_text_view(void)
 
 	gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(text_view), GTK_WRAP_WORD);
 	gtk_widget_override_font(text_view, font);
-	pango_font_description_free(font);
 	gtk_widget_set_hexpand(text_view, TRUE);
 	gtk_widget_set_vexpand(text_view, TRUE);
 
@@ -123,17 +121,7 @@ create_font_chooser(void)
 
 	font_chooser = gtk_font_chooser_dialog_new(NULL, GTK_WINDOW(window));
 
-        select = gtk_buildable_get_internal_child(GTK_BUILDABLE(font_chooser),
-                                                  builder, "select_button");
-        cancel = gtk_buildable_get_internal_child(GTK_BUILDABLE(font_chooser),
-                                                  builder, "cancel_button");
-
-        g_signal_connect(select, "button-press-event",
-                         G_CALLBACK(select_activate), NULL);
-        g_signal_connect(cancel, "button-press-event",
-                         G_CALLBACK(cancel_activate), NULL);
-
-	/* TODO gtk_font_chooser_set_font(font_chooser, font); */
+	gtk_font_chooser_set_font_desc(GTK_FONT_CHOOSER(font_chooser), font);
 
 	return font_chooser;
 }
@@ -222,35 +210,22 @@ saveas_activate(void)
 void
 font_activate(void)
 {
-	font_chooser = create_font_chooser();
-	gtk_dialog_run(GTK_DIALOG(font_chooser));
-	/* TODO GTK_RESPONSE_CANCEL */
+	int res;
 
-	/* TODO unref font_chooser? */
+	font_chooser = create_font_chooser();
+	res = gtk_dialog_run(GTK_DIALOG(font_chooser));
+	if (res == GTK_RESPONSE_OK)
+		select_font();
+
+	gtk_widget_destroy(font_chooser);
 }
 
 void
-select_activate(GtkWidget *w)
+select_font(void)
 {
+	pango_font_description_free(font);
 	font = gtk_font_chooser_get_font_desc(GTK_FONT_CHOOSER(font_chooser));
 	gtk_widget_override_font(text_view, font);
-	pango_font_description_free(font);
-	cancel_activate(w);
-}
-
-void
-cancel_activate(GtkWidget *w)
-{
-	GtkWidget *parent = gtk_widget_get_parent(w);
-	parent = gtk_widget_get_parent(parent);
-	parent = gtk_widget_get_parent(parent);
-	parent = gtk_widget_get_parent(parent);
-
-	/* GtkWindow *parent = GTK_WINDOW(gtk_widget_get_parent_window(w));
-	 * TODO can it be done prettier?
-	 */
-
-	gtk_window_close(GTK_WINDOW(parent));
 }
 
 void
@@ -349,6 +324,5 @@ main(int argc, char *argv[])
 	status = g_application_run(G_APPLICATION(app), argc, argv);
 	g_object_unref(app);
 
-	/* TODO delete event to prevent unsaved exit */
 	return status;
 }
