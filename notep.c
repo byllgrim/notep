@@ -27,6 +27,7 @@ static void exit_notep(void);
 
 /* Variables */
 static GtkWidget *window;
+static GtkWidget *text_view;
 static GtkWidget *text_window;
 static GtkWidget *font_chooser;
 static GtkTextBuffer *buffer;
@@ -103,9 +104,9 @@ create_menu_bar(void)
 GtkWidget *
 create_text_view(void)
 {
-	GtkWidget *text_view = gtk_text_view_new();
 	GtkWidget *scrolled_window = gtk_scrolled_window_new(NULL, NULL);
 
+	text_view = gtk_text_view_new();
 	gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(text_view), GTK_WRAP_WORD);
 	gtk_widget_override_font(text_view, font);
 	gtk_widget_set_hexpand(text_view, TRUE);
@@ -229,7 +230,8 @@ select_font(void)
 {
 	pango_font_description_free(font);
 	font = gtk_font_chooser_get_font_desc(GTK_FONT_CHOOSER(font_chooser));
-	gtk_widget_override_font(text_window, font);
+	gtk_widget_override_font(text_view, font);
+	/* TODO text_window.get_children() */
 }
 
 void
