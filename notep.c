@@ -27,7 +27,7 @@ static void exit_notep(void);
 
 /* Variables */
 static GtkWidget *window;
-static GtkWidget *text_view;
+static GtkWidget *text_window;
 static GtkWidget *font_chooser;
 static GtkTextBuffer *buffer;
 static PangoFontDescription *font;
@@ -57,11 +57,11 @@ activate(GtkApplication *app, gpointer user_data)
 	menu_bar = create_menu_bar();
 	gtk_grid_attach(GTK_GRID(grid), menu_bar, 0, 0, 1, 1);
 
-	text_view = create_text_view();
-	gtk_grid_attach_next_to(GTK_GRID(grid), text_view, menu_bar,
+	text_window = create_text_view(); /* TODO create_text_window ? */
+	gtk_grid_attach_next_to(GTK_GRID(grid), text_window, menu_bar,
 	                        GTK_POS_BOTTOM, 1, 1);
 
-	buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(text_view));
+	/* buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(text_view)); */
 
 	gtk_widget_show_all(window);
 }
@@ -104,13 +104,17 @@ GtkWidget *
 create_text_view(void)
 {
 	GtkWidget *text_view = gtk_text_view_new();
+	GtkWidget *scrolled_window = gtk_scrolled_window_new(NULL, NULL);
 
 	gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(text_view), GTK_WRAP_WORD);
 	gtk_widget_override_font(text_view, font);
 	gtk_widget_set_hexpand(text_view, TRUE);
 	gtk_widget_set_vexpand(text_view, TRUE);
 
-	return text_view;
+	gtk_container_add(GTK_CONTAINER(scrolled_window), text_view);
+	buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(text_view));
+	/* TODO buffer assignment should be general. Get it out of here */
+	return scrolled_window;
 }
 
 GtkWidget *
@@ -225,7 +229,7 @@ select_font(void)
 {
 	pango_font_description_free(font);
 	font = gtk_font_chooser_get_font_desc(GTK_FONT_CHOOSER(font_chooser));
-	gtk_widget_override_font(text_view, font);
+	gtk_widget_override_font(text_window, font);
 }
 
 void
