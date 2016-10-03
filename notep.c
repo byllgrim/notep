@@ -2,6 +2,7 @@
 #include <gtk/gtk.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "config.h"
 
@@ -24,6 +25,7 @@ static void load_file(void);
 static int save_file(void);
 static int unsaved_dialog(void);
 static gboolean exit_notep(void);
+static void die(char *msg);
 
 /* Variables */
 static GtkWidget *window;
@@ -240,7 +242,7 @@ void
 load_file(void)
 {
 	FILE *file;
-	long length;
+	size_t length;
 	char *text;
 
 	file = fopen(filename, "r");
@@ -249,7 +251,8 @@ load_file(void)
 	fseek(file, 0, SEEK_SET);
 
 	text = malloc((size_t)(length + 1)); /* TODO error checking */
-	fread(text, sizeof(char), length, file);
+	if (fread(text, sizeof(char), length, file) != length)
+		die("notep: error reading file");
 	text[length] = '\0';
 	gtk_text_buffer_set_text(buffer, text, length);
 
@@ -319,6 +322,23 @@ exit_notep(void)
 	}
 
 	exit(EXIT_SUCCESS);
+}
+
+void
+die(char *msg)
+{
+	GtkWidget *dialog;
+
+	dialog = gtk_message_dialog_new(GTK_WINDOW(window),
+	                                GTK_DIALOG_DESTROY_WITH_PARENT,
+	                                GTK_MESSAGE_ERROR,
+	                                GTK_BUTTONS_OK,
+	                                "%s", msg);
+	gtk_dialog_run(GTK_DIALOG(dialog));
+	gtk_widget_destroy(dialog);
+
+	fprintf(stderr, "%s\n", msg);
+	exit(EXIT_FAILURE);
 }
 
 int
