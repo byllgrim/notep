@@ -10,7 +10,7 @@
 enum {YES, NO, CANCEL}; /* unsaved_dialog */
 
 /* Function declarations */
-static void activate(GtkApplication *app, gpointer user_data);
+static void activate(GtkApplication *app);
 static GtkWidget *create_menu_bar(void);
 static GtkWidget *create_text_view(void);
 static GtkWidget *create_font_chooser(void);
@@ -40,7 +40,7 @@ static char *filename = NULL;
 
 /* Function definitions */
 void
-activate(GtkApplication *app, gpointer user_data)
+activate(GtkApplication *app)
 {
 	GtkWidget *grid;
 	GtkWidget *menu_bar;
@@ -123,11 +123,7 @@ create_text_view(void)
 GtkWidget *
 create_font_chooser(void)
 {
-	GObject *select;
-	GObject *cancel;
-
 	font_chooser = gtk_font_chooser_dialog_new(NULL, GTK_WINDOW(window));
-
 	gtk_font_chooser_set_font_desc(GTK_FONT_CHOOSER(font_chooser), font);
 
 	return font_chooser;
@@ -265,7 +261,6 @@ int
 save_file(void)
 {
 	FILE *file;
-	size_t length;
 	char *text;
 	GtkTextIter *start;
 	GtkTextIter *end;
@@ -274,7 +269,6 @@ save_file(void)
 	end = malloc(sizeof(GtkTextIter));
 
 	file = fopen(filename, "w");
-	length = (size_t)gtk_text_buffer_get_char_count(buffer);
 	gtk_text_buffer_get_start_iter(buffer, start);
 	gtk_text_buffer_get_end_iter(buffer, end);
 	text = gtk_text_buffer_get_text(buffer, start, end, TRUE);
