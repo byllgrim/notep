@@ -147,14 +147,15 @@ open_activate(void)
 		/* else 'button no' continues as normal */
 	}
 
-	file_chooser = gtk_file_chooser_dialog_new("Open file", window,
+	file_chooser = gtk_file_chooser_dialog_new("Open file",
+	                                           GTK_WINDOW(window),
 	                                           GTK_FILE_CHOOSER_ACTION_OPEN,
 	                                           "_Cancel",
 	                                           GTK_RESPONSE_CANCEL,
 	                                           "_Open",
 	                                           GTK_RESPONSE_ACCEPT,
 	                                           NULL);
-	res = gtk_dialog_run(file_chooser);
+	res = gtk_dialog_run(GTK_DIALOG(file_chooser));
 
 	if (res == GTK_RESPONSE_ACCEPT) {
 		filename = gtk_file_chooser_get_filename(
@@ -183,7 +184,8 @@ saveas_activate(void)
 	GtkFileChooser *chooser;
 	gint res;
 
-	dialog = gtk_file_chooser_dialog_new("Save file", window,
+	dialog = gtk_file_chooser_dialog_new("Save file",
+	                                     GTK_WINDOW(window),
 	                                     GTK_FILE_CHOOSER_ACTION_SAVE,
 	                                     "_Cancel",
 	                                     GTK_RESPONSE_CANCEL,
@@ -284,21 +286,21 @@ save_file(void)
 int
 unsaved_dialog(void)
 {
-	GtkDialog *dialog;
+	GtkWidget *dialog;
 	gint res;
 
-	dialog = gtk_message_dialog_new(window,
+	dialog = gtk_message_dialog_new(GTK_WINDOW(window),
 	                                GTK_DIALOG_MODAL,
 	                                GTK_MESSAGE_QUESTION,
 	                                GTK_BUTTONS_NONE,
 	                                "The document has been modified.\n"
 	                                "Save changes?");
-	gtk_dialog_add_buttons(dialog,
+	gtk_dialog_add_buttons(GTK_DIALOG(dialog),
 	                       "Yes", YES,
 	                       "No", NO,
 	                       "Cancel", CANCEL, NULL);
 
-	res = gtk_dialog_run(dialog);
+	res = gtk_dialog_run(GTK_DIALOG(dialog));
 	gtk_widget_destroy(dialog);
 	return res;
 }
