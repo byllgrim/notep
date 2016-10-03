@@ -23,7 +23,7 @@ static void select_font(void);
 static void load_file(void);
 static int save_file(void);
 static int unsaved_dialog(void);
-static void exit_notep(void);
+static gboolean exit_notep(void);
 
 /* Variables */
 static GtkWidget *window;
@@ -303,7 +303,7 @@ unsaved_dialog(void)
 	return res;
 }
 
-void
+gboolean
 exit_notep(void)
 {
 	int prompt;
@@ -313,7 +313,7 @@ exit_notep(void)
 		if (prompt ==  YES)
 			prompt = save_activate();
 		if (prompt == CANCEL)
-			return;
+			return TRUE;
 	}
 
 	exit(EXIT_SUCCESS);
