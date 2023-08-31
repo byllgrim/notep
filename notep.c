@@ -1,4 +1,5 @@
 /* See LICENSE file for copyright and license details. */
+
 #include <gtk/gtk.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -6,39 +7,39 @@
 
 #include "config.h"
 
-/* Types */
-enum {YES, NO, CANCEL}; /* unsaved_dialog */
 
-/* Function declarations */
-static void activate(GtkApplication *app);
-static GtkWidget *create_menu_bar(void);
-static GtkWidget *create_text_view(void);
-static GtkWidget *create_font_chooser(void);
+enum unsaved_dialog {YES, NO, CANCEL};
 
-static void open_activate(void);
-static int save_activate(void);
-static int saveas_activate(void);
-static void font_activate(void);
-static void select_font(void);
 
-static void load_file(void);
-static int save_file(void);
-static int unsaved_dialog(void);
-static gboolean exit_notep(void);
-static void die(char *msg);
+static void        activate(GtkApplication *app);
+static GtkWidget  *create_menu_bar(void);
+static GtkWidget  *create_text_view(void);
+static GtkWidget  *create_font_chooser(void);
 
-/* Variables */
-static GtkWidget *window;
-static GtkWidget *text_view;
-static GtkWidget *text_window;
-static GtkWidget *font_chooser;
-static GtkTextBuffer *buffer;
-static PangoFontDescription *font;
-static GtkBuilder *builder;
-static int saved = 0;
-static char *filename = NULL;
+static void  open_activate(void);
+static int   save_activate(void);
+static int   saveas_activate(void);
+static void  font_activate(void);
+static void  select_font(void);
 
-/* Function definitions */
+static void      load_file(void);
+static int       save_file(void);
+static int       unsaved_dialog(void);
+static gboolean  exit_notep(void);
+static void      die(char *msg);
+
+
+static GtkWidget             *window;
+static GtkWidget             *text_view;
+static GtkWidget             *text_window;
+static GtkWidget             *font_chooser;
+static GtkTextBuffer         *buffer;
+static PangoFontDescription  *font;
+static GtkBuilder            *builder;
+static int                    saved = 0;
+static char                  *filename = NULL;
+
+
 void
 activate(GtkApplication *app)
 {
