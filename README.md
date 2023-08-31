@@ -4,9 +4,7 @@ notepad is too much
 ![notep.png](./notep.png)
 
 # dependencies
-gtk+ (╯°□°╯ ┻━┻
-
-i use v3. dont know about compatibility
+gtk 3 ?
 
 # installation
 `$ make` and `$ make install`
