@@ -1,15 +1,18 @@
 # See LICENSE file for copyright and license details.
+
 GTKINC = `pkg-config --cflags gtk+-3.0`
 GTKLIB = `pkg-config --libs gtk+-3.0`
 
-CFLAGS = -Os -Wall -Wextra ${GTKINC}
+CFLAGS = -Os -Wall -Wextra -lpthread ${GTKINC}
 LDFLAGS = ${GTKLIB}
 
 PREFIX = /usr/local
 
-#TODO fix this makefile
-all: config.h
-	cc ${CFLAGS} -o notep notep.c ${LDFLAGS}
+compile: config.h
+	@echo CC = ${CC}
+	@echo CFLAGS = ${CFLAGS}
+	@echo LDFLAGS = ${LDFLAGS}
+	${CC} ${CFLAGS} -o notep notep.c ${LDFLAGS}
 
 config.h:
 	cp config.def.h config.h
