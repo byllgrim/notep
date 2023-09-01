@@ -14,7 +14,6 @@ enum enum_unsaved_dialog {YES, NO, CANCEL};
 static GtkBuilder            *builder;
 static GtkCssProvider        *css_provider;
 static GtkTextBuffer         *buffer;
-static GtkWidget             *font_chooser;
 static GtkWidget             *text_view;
 static GtkWidget             *text_window;
 static GtkWidget             *window;
@@ -280,15 +279,6 @@ activate(GtkApplication *app)
 	/* buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(text_view)); */
 
 	gtk_widget_show_all(window);
-}
-
-static GtkWidget *
-create_font_chooser(void)
-{
-	font_chooser = gtk_font_chooser_dialog_new(NULL, GTK_WINDOW(window));
-	gtk_font_chooser_set_font_desc(GTK_FONT_CHOOSER(font_chooser), font_description);
-
-	return font_chooser;
 }
 
 /* TODO fuck this bullshit
