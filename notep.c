@@ -23,7 +23,7 @@ static char                  *filename = NULL;
 static int                    saved = 0;
 
 
-int
+static int
 unsaved_dialog(void)
 {
 	GtkWidget *dialog;
@@ -45,7 +45,7 @@ unsaved_dialog(void)
 	return res;
 }
 
-int
+static int
 save_file(void)
 {
 	FILE *file;
@@ -68,7 +68,7 @@ save_file(void)
 	return YES;
 }
 
-int
+static int
 saveas_activate(void)
 {
 	GtkWidget *dialog;
@@ -105,7 +105,7 @@ saveas_activate(void)
 	return res;
 }
 
-int
+static int
 save_activate(void)
 {
 	int res = NO;
@@ -116,7 +116,7 @@ save_activate(void)
 	return res; /* TODO verify correctness of this return */
 }
 
-gboolean
+static gboolean
 exit_notep(void)
 {
 	int prompt;
@@ -132,7 +132,7 @@ exit_notep(void)
 	exit(EXIT_SUCCESS);
 }
 
-void
+static void
 die(char *msg)
 {
 	GtkWidget *dialog;
@@ -149,7 +149,7 @@ die(char *msg)
 	exit(EXIT_FAILURE);
 }
 
-void
+static void
 load_file(void)
 {
 	FILE *file;
@@ -172,7 +172,7 @@ load_file(void)
 	fclose(file);
 }
 
-void
+static void
 open_activate(void)
 {
 	GtkWidget *file_chooser;
@@ -207,7 +207,7 @@ open_activate(void)
 	gtk_widget_destroy(file_chooser);
 }
 
-GtkWidget *
+static GtkWidget *
 create_menu_bar(void)
 {
 	GtkWidget *menu_bar;
@@ -235,7 +235,7 @@ create_menu_bar(void)
 	return menu_bar;
 }
 
-GtkWidget *
+static GtkWidget *
 create_text_view(void)
 {
 	GtkWidget *scrolled_window = gtk_scrolled_window_new(NULL, NULL);
@@ -252,7 +252,7 @@ create_text_view(void)
 	return scrolled_window;
 }
 
-void
+static void
 activate(GtkApplication *app)
 {
 	GtkWidget *grid;
@@ -282,7 +282,7 @@ activate(GtkApplication *app)
 	gtk_widget_show_all(window);
 }
 
-GtkWidget *
+static GtkWidget *
 create_font_chooser(void)
 {
 	font_chooser = gtk_font_chooser_dialog_new(NULL, GTK_WINDOW(window));
@@ -292,7 +292,7 @@ create_font_chooser(void)
 }
 
 /* TODO fuck this bullshit
-void
+static void
 select_font(void)
 {
 	GtkStyleContext *style_context;
