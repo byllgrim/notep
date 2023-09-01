@@ -36,7 +36,7 @@ static GtkWidget             *font_chooser;
 static GtkWidget             *text_view;
 static GtkWidget             *text_window;
 static GtkWidget             *window;
-static PangoFontDescription  *font;
+static PangoFontDescription  *font_description;
 static char                  *filename = NULL;
 static int                    saved = 0;
 
@@ -48,7 +48,7 @@ activate(GtkApplication *app)
 	GtkWidget *menu_bar;
 
 	builder = gtk_builder_new();
-	font = pango_font_description_from_string(default_font);
+	font_description = pango_font_description_from_string(default_font);
 
 	window = gtk_application_window_new(app);
 	/* TODO GDK_KEY_PRESS_MASK and key-press-event */
@@ -112,7 +112,7 @@ create_text_view(void)
 
 	text_view = gtk_text_view_new();
 	gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(text_view), GTK_WRAP_WORD);
-	gtk_widget_override_font(text_view, font);
+	gtk_widget_override_font(text_view, font_description);
 	gtk_widget_set_hexpand(text_view, TRUE);
 	gtk_widget_set_vexpand(text_view, TRUE);
 
@@ -126,7 +126,7 @@ GtkWidget *
 create_font_chooser(void)
 {
 	font_chooser = gtk_font_chooser_dialog_new(NULL, GTK_WINDOW(window));
-	gtk_font_chooser_set_font_desc(GTK_FONT_CHOOSER(font_chooser), font);
+	gtk_font_chooser_set_font_desc(GTK_FONT_CHOOSER(font_chooser), font_description);
 
 	return font_chooser;
 }
@@ -235,12 +235,12 @@ select_font(void)
 	const char      *font_family;
 	gint             font_size;
 
-	pango_font_description_free(font);
+	pango_font_description_free(font_description);
 
-	font         = gtk_font_chooser_get_font_desc(GTK_FONT_CHOOSER(font_chooser));
-	font_family  = pango_font_description_get_family(font);
-	font_size    = pango_font_description_get_size(font);
-	css_provider = gtk_css_provider_new(); /* TODO create beforehand */
+	font_description = gtk_font_chooser_get_font_desc(GTK_FONT_CHOOSER(font_chooser));
+	font_family      = pango_font_description_get_family(font_description);
+	font_size        = pango_font_description_get_size(font_description);
+	css_provider     = gtk_css_provider_new(); /* TODO create beforehand */
 	/* TODO all font properties */
 
 	snprintf(
