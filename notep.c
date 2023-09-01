@@ -234,6 +234,46 @@ create_menu_bar(void)
 	return menu_bar;
 }
 
+static void
+text_view_set_font(
+	GtkWidget            *text_view,
+	PangoFontDescription *font_description)
+{
+	GtkStyleContext *style_context;
+	char             css_string[1024];
+	const char      *font_family;
+	gint             font_size;
+
+	font_family  = pango_font_description_get_family(font_description);
+	font_size    = pango_font_description_get_size(font_description);
+	css_provider = gtk_css_provider_new();
+
+	snprintf(
+		css_string,
+		1024,
+		"textview {"
+		"  font-family: %s;"
+		"  font-size:   %dpt;"
+		"}",
+		font_family,
+		(font_size / PANGO_SCALE)
+	);
+	gtk_css_provider_load_from_data(
+		css_provider,
+		css_string,
+		-1,
+		0
+	);
+
+	style_context = gtk_widget_get_style_context(text_view);
+
+	gtk_style_context_add_provider(
+		style_context,
+		GTK_STYLE_PROVIDER(css_provider),
+		GTK_STYLE_PROVIDER_PRIORITY_APPLICATION
+	);
+}
+
 static GtkWidget *
 create_text_view(void)
 {
@@ -241,7 +281,7 @@ create_text_view(void)
 
 	text_view = gtk_text_view_new();
 	gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(text_view), GTK_WRAP_WORD);
-	gtk_widget_override_font(text_view, font_description);
+	text_view_set_font(text_view, font_description);
 	gtk_widget_set_hexpand(text_view, TRUE);
 	gtk_widget_set_vexpand(text_view, TRUE);
 
@@ -280,49 +320,6 @@ activate(GtkApplication *app)
 
 	gtk_widget_show_all(window);
 }
-
-/* TODO fuck this bullshit
-static void
-select_font(void)
-{
-	GtkStyleContext *style_context;
-	char             css_string[1024];
-	const char      *font_family;
-	gint             font_size;
-
-	pango_font_description_free(font_description);
-
-	font_description = gtk_font_chooser_get_font_desc(GTK_FONT_CHOOSER(font_chooser));
-	font_family      = pango_font_description_get_family(font_description);
-	font_size        = pango_font_description_get_size(font_description);
-	css_provider     = gtk_css_provider_new();
-
-	snprintf(
-		css_string,
-		1024,
-		"textview {"
-		"  font-family: %s;"
-		"  font-size:   %dpt;"
-		"}",
-		font_family,
-		(font_size / PANGO_SCALE)
-	);
-	gtk_css_provider_load_from_data(
-		css_provider,
-		css_string,
-		-1,
-		0
-	);
-
-	style_context = gtk_widget_get_style_context(text_view);
-
-	gtk_style_context_add_provider(
-		style_context,
-		GTK_STYLE_PROVIDER(css_provider),
-		GTK_STYLE_PROVIDER_PRIORITY_APPLICATION
-	);
-}
-*/
 
 int
 main(int argc, char *argv[])
