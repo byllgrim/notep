@@ -1,0 +1,13 @@
+AlignAfterOpenBracket: BlockIndent
+AlignArrayOfStructures: Left
+AlignConsecutiveAssignments: true
+AlignConsecutiveDeclarations: true
+AlwaysBreakAfterReturnType: All
+BinPackArguments: false
+BinPackParameters: false
+ColumnLimit: 79
+IndentWidth: 4
+PointerAlignment: Right
+SortIncludes: CaseSensitive
+SpaceBeforeParens: Always
+SpacesInParentheses: true

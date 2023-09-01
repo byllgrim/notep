@@ -22,5 +22,8 @@ install:
 	cp -f notep ${DESTDIR}${PREFIX}/bin
 	chmod 755 ${DESTDIR}${PREFIX}/bin/notep
 
+format:
+	clang-format -i --style="file:./style.clang-format" ./notep.c
+
 clean:
 	rm -f notep
