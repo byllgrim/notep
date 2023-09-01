@@ -230,21 +230,28 @@ font_activate(void)
 void
 select_font(void)
 {
-	char            *font_string;
 	GtkStyleContext *style_context;
 	char             css_string[1024];
+	const char      *font_family;
+	gint             font_size;
 
 	pango_font_description_free(font);
 
-	font = gtk_font_chooser_get_font_desc(GTK_FONT_CHOOSER(font_chooser));
-	font_string = pango_font_description_to_string(font);
+	font         = gtk_font_chooser_get_font_desc(GTK_FONT_CHOOSER(font_chooser));
+	font_family  = pango_font_description_get_family(font);
+	font_size    = pango_font_description_get_size(font);
 	css_provider = gtk_css_provider_new(); /* TODO create beforehand */
+	/* TODO all font properties */
 
 	snprintf(
 		css_string,
 		1024,
-		"textview { font: %s; }",
-		font_string
+		"textview {"
+		"  font-family: %s;"
+		"  font-size:   %dpt;"
+		"}",
+		font_family,
+		(font_size / PANGO_SCALE)
 	);
 	gtk_css_provider_load_from_data(
 		css_provider,
