@@ -88,11 +88,9 @@ saveas_activate(void)
 
 	if (filename)
 		gtk_file_chooser_set_filename(chooser, filename);
-		/* TODO is this nescessary? */
 
 	res = gtk_dialog_run(GTK_DIALOG(dialog));
 	if (res == GTK_RESPONSE_ACCEPT) {
-		/* TODO g_free filename? */
 		filename = gtk_file_chooser_get_filename(chooser);
 		save_file();
 		res = YES;
@@ -112,7 +110,7 @@ save_activate(void)
 	if ((gtk_text_buffer_get_modified(buffer) == TRUE) || !saved)
 		res = saved ? save_file() : saveas_activate();
 
-	return res; /* TODO verify correctness of this return */
+	return res;
 }
 
 static gboolean
@@ -160,7 +158,7 @@ load_file(void)
 	length = ftell(file);
 	fseek(file, 0, SEEK_SET);
 
-	text = malloc((size_t)(length + 1)); /* TODO error checking */
+	text = malloc((size_t)(length + 1));
 	if (fread(text, sizeof(char), length, file) != length)
 		die("notep: error reading file");
 	text[length] = '\0';
@@ -184,7 +182,6 @@ open_activate(void)
 			prompt = save_activate();
 		if (prompt == CANCEL)
 			return;
-		/* else 'button no' continues as normal */
 	}
 
 	file_chooser = gtk_file_chooser_dialog_new("Open file",
@@ -287,7 +284,6 @@ create_text_view(void)
 
 	gtk_container_add(GTK_CONTAINER(scrolled_window), text_view);
 	buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(text_view));
-	/* TODO buffer assignment should be general. Get it out of here */
 	return scrolled_window;
 }
 
@@ -301,7 +297,6 @@ activate(GtkApplication *app)
 	font_description = pango_font_description_from_string(default_font);
 
 	window = gtk_application_window_new(app);
-	/* TODO GDK_KEY_PRESS_MASK and key-press-event */
 	gtk_window_set_title(GTK_WINDOW(window), "notep");
 	gtk_window_set_default_size(GTK_WINDOW(window), 320, 240);
 	g_signal_connect(window, "delete-event", G_CALLBACK(exit_notep), NULL);
@@ -312,11 +307,9 @@ activate(GtkApplication *app)
 	menu_bar = create_menu_bar();
 	gtk_grid_attach(GTK_GRID(grid), menu_bar, 0, 0, 1, 1);
 
-	text_window = create_text_view(); /* TODO create_text_window ? */
+	text_window = create_text_view();
 	gtk_grid_attach_next_to(GTK_GRID(grid), text_window, menu_bar,
 	                        GTK_POS_BOTTOM, 1, 1);
-
-	/* buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(text_view)); */
 
 	gtk_widget_show_all(window);
 }
