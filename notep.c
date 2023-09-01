@@ -11,33 +11,34 @@
 enum unsaved_dialog {YES, NO, CANCEL};
 
 
-static void        activate(GtkApplication *app);
+static GtkWidget  *create_font_chooser(void);
 static GtkWidget  *create_menu_bar(void);
 static GtkWidget  *create_text_view(void);
-static GtkWidget  *create_font_chooser(void);
+static void        activate(GtkApplication *app);
 
-static void  open_activate(void);
 static int   save_activate(void);
 static int   saveas_activate(void);
 static void  font_activate(void);
+static void  open_activate(void);
 static void  select_font(void);
 
-static void      load_file(void);
+static gboolean  exit_notep(void);
 static int       save_file(void);
 static int       unsaved_dialog(void);
-static gboolean  exit_notep(void);
 static void      die(char *msg);
+static void      load_file(void);
 
 
-static GtkWidget             *window;
+static GtkBuilder            *builder;
+static GtkCssProvider        *css_provider;
+static GtkTextBuffer         *buffer;
+static GtkWidget             *font_chooser;
 static GtkWidget             *text_view;
 static GtkWidget             *text_window;
-static GtkWidget             *font_chooser;
-static GtkTextBuffer         *buffer;
+static GtkWidget             *window;
 static PangoFontDescription  *font;
-static GtkBuilder            *builder;
-static int                    saved = 0;
 static char                  *filename = NULL;
+static int                    saved = 0;
 
 
 void
@@ -229,10 +230,36 @@ font_activate(void)
 void
 select_font(void)
 {
+	char            *font_string;
+	GtkStyleContext *style_context;
+	char             css_string[1024];
+
 	pango_font_description_free(font);
+
 	font = gtk_font_chooser_get_font_desc(GTK_FONT_CHOOSER(font_chooser));
-	gtk_widget_override_font(text_view, font);
-	/* TODO text_window.get_children() */
+	font_string = pango_font_description_to_string(font);
+	css_provider = gtk_css_provider_new(); /* TODO create beforehand */
+
+	snprintf(
+		css_string,
+		1024,
+		"textview { font: %s; }",
+		font_string
+	);
+	gtk_css_provider_load_from_data(
+		css_provider,
+		css_string,
+		-1,
+		0
+	);
+
+	style_context = gtk_widget_get_style_context(text_view);
+
+	gtk_style_context_add_provider(
+		style_context,
+		GTK_STYLE_PROVIDER(css_provider),
+		GTK_STYLE_PROVIDER_PRIORITY_APPLICATION
+	);
 }
 
 void
