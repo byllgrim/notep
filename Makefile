@@ -3,7 +3,7 @@
 GTKINC = `pkg-config --cflags gtk+-3.0`
 GTKLIB = `pkg-config --libs gtk+-3.0`
 
-CFLAGS = -Os -Wall -Wextra -lpthread ${GTKINC}
+CFLAGS = -Os -Wall -Wextra -std=c99 -pedantic -lpthread ${GTKINC}
 LDFLAGS = ${GTKLIB}
 
 PREFIX = /usr/local
