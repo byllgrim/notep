@@ -18,9 +18,7 @@ static void        activate(GtkApplication *app);
 
 static int   save_activate(void);
 static int   saveas_activate(void);
-static void  font_activate(void);
 static void  open_activate(void);
-static void  select_font(void);
 
 static gboolean  exit_notep(void);
 static int       save_file(void);
@@ -96,11 +94,6 @@ create_menu_bar(void)
 	g_signal_connect(G_OBJECT(saveas), "button-press-event",
 	                 G_CALLBACK(saveas_activate), NULL);
 	gtk_menu_shell_append(GTK_MENU_SHELL(menu_bar), saveas);
-
-	font = gtk_menu_item_new_with_label("Font");
-	g_signal_connect(G_OBJECT(font), "button-press-event",
-	                 G_CALLBACK(font_activate), NULL);
-	gtk_menu_shell_append(GTK_MENU_SHELL(menu_bar), font);
 
 	return menu_bar;
 }
@@ -214,19 +207,7 @@ saveas_activate(void)
 	return res;
 }
 
-void
-font_activate(void)
-{
-	int res;
-
-	font_chooser = create_font_chooser();
-	res = gtk_dialog_run(GTK_DIALOG(font_chooser));
-	if (res == GTK_RESPONSE_OK)
-		select_font();
-
-	gtk_widget_destroy(font_chooser);
-}
-
+/* TODO fuck this bullshit
 void
 select_font(void)
 {
@@ -240,8 +221,7 @@ select_font(void)
 	font_description = gtk_font_chooser_get_font_desc(GTK_FONT_CHOOSER(font_chooser));
 	font_family      = pango_font_description_get_family(font_description);
 	font_size        = pango_font_description_get_size(font_description);
-	css_provider     = gtk_css_provider_new(); /* TODO create beforehand */
-	/* TODO all font properties */
+	css_provider     = gtk_css_provider_new();
 
 	snprintf(
 		css_string,
@@ -268,6 +248,7 @@ select_font(void)
 		GTK_STYLE_PROVIDER_PRIORITY_APPLICATION
 	);
 }
+*/
 
 void
 load_file(void)
