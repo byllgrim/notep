@@ -8,6 +8,8 @@
 #include "config.h"
 
 enum enum_unsaved_dialog { YES, NO, CANCEL };
+enum enum_svga_resolution { SVGA_WIDTH = 800, SVGA_HEIGHT = 600 };
+enum enum_buflen { CSS_STRING_MAXLEN = 1024 };
 
 static GtkBuilder           *builder;
 static GtkCssProvider       *css_provider;
@@ -239,7 +241,7 @@ create_menu_bar ( void ) {
 static void
 text_view_set_font ( GtkWidget *text_view, PangoFontDescription *font_description ) {
     GtkStyleContext *style_context;
-    char             css_string[1024];
+    char             css_string[CSS_STRING_MAXLEN];
     const char      *font_family;
     gint             font_size;
 
@@ -249,7 +251,7 @@ text_view_set_font ( GtkWidget *text_view, PangoFontDescription *font_descriptio
 
     snprintf (
         css_string,
-        1024,
+        CSS_STRING_MAXLEN,
         "textview {"
         "  font-family: %s;"
         "  font-size:   %dpt;"
@@ -293,7 +295,7 @@ activate ( GtkApplication *app ) {
 
     window = gtk_application_window_new ( app );
     gtk_window_set_title ( GTK_WINDOW ( window ), "notep" );
-    gtk_window_set_default_size ( GTK_WINDOW ( window ), 320, 240 );
+    gtk_window_set_default_size ( GTK_WINDOW ( window ), SVGA_WIDTH, SVGA_HEIGHT );
     g_signal_connect ( window, "delete-event", G_CALLBACK ( exit_notep ), NULL );
 
     grid = gtk_grid_new ();
