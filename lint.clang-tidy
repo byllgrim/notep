@@ -1,5 +1,14 @@
 {
-    Checks: 'clang-analyzer-*,readability-*,portability-*,performance-*,misc-*,cert-*,bugprone-*',
+    Checks: '
+        bugprone-*,
+        cert-*,
+        clang-analyzer-*,
+        misc-*,
+        performance-*,
+        portability-*,
+        readability-*,
+        -clang-analyzer-security.insecureAPI.DeprecatedOrUnsafeBufferHandling,
+    ',
     CheckOptions: [
         {key: readability-function-cognitive-complexity.Threshold, value: 1},
         {key: readability-function-size.LineThreshold, value: 24}

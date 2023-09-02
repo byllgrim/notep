@@ -208,50 +208,63 @@ open_activate ( void ) {
     gtk_widget_destroy ( file_chooser );
 }
 
-static GtkWidget *
-create_menu_bar ( void ) {
-    GtkWidget *menu_bar;
+static void
+create_button_open ( GtkWidget *menu_bar ) {
     GtkWidget *open;
-    GtkWidget *save;
-    GtkWidget *saveas;
-
-    menu_bar = gtk_menu_bar_new ();
 
     open = gtk_menu_item_new_with_label ( "Open" );
     g_signal_connect (
         G_OBJECT ( open ), "button-press-event", G_CALLBACK ( open_activate ), NULL
     );
     gtk_menu_shell_append ( GTK_MENU_SHELL ( menu_bar ), open );
+}
+
+static void
+create_button_save ( GtkWidget *menu_bar ) {
+    GtkWidget *save;
 
     save = gtk_menu_item_new_with_label ( "Save" );
     g_signal_connect (
         G_OBJECT ( save ), "button-press-event", G_CALLBACK ( save_activate ), NULL
     );
     gtk_menu_shell_append ( GTK_MENU_SHELL ( menu_bar ), save );
+}
+
+static void
+create_button_saveas ( GtkWidget *menu_bar ) {
+    GtkWidget *saveas;
 
     saveas = gtk_menu_item_new_with_label ( "SaveAs" );
     g_signal_connect (
         G_OBJECT ( saveas ), "button-press-event", G_CALLBACK ( saveas_activate ), NULL
     );
     gtk_menu_shell_append ( GTK_MENU_SHELL ( menu_bar ), saveas );
+}
+
+static GtkWidget *
+create_menu_bar ( void ) {
+    GtkWidget *menu_bar;
+
+    menu_bar = gtk_menu_bar_new ();
+
+    create_button_open ( menu_bar );
+    create_button_save ( menu_bar );
+    create_button_saveas ( menu_bar );
 
     return menu_bar;
 }
 
 static void
-text_view_set_font ( GtkWidget *text_view, PangoFontDescription *font_description ) {
-    GtkStyleContext *style_context;
-    char             css_string[CSS_STRING_MAXLEN];
-    const char      *font_family;
-    gint             font_size;
+generate_css_string ( char *str, size_t size ) {
+    const char *font_family;
+    gint        font_size;
 
-    font_family  = pango_font_description_get_family ( font_description );
-    font_size    = pango_font_description_get_size ( font_description );
-    css_provider = gtk_css_provider_new ();
+    font_family = pango_font_description_get_family ( font_description );
+    font_size   = pango_font_description_get_size ( font_description );
 
-    snprintf (
-        css_string,
-        CSS_STRING_MAXLEN,
+    (void) snprintf (
+        str,
+        size,
         "textview {"
         "  font-family: %s;"
         "  font-size:   %dpt;"
@@ -259,6 +272,16 @@ text_view_set_font ( GtkWidget *text_view, PangoFontDescription *font_descriptio
         font_family,
         ( font_size / PANGO_SCALE )
     );
+}
+
+static void
+text_view_set_font ( GtkWidget *text_view ) {
+    GtkStyleContext *style_context;
+    char             css_string[CSS_STRING_MAXLEN];
+
+    css_provider = gtk_css_provider_new ();
+
+    generate_css_string ( css_string, CSS_STRING_MAXLEN );
     gtk_css_provider_load_from_data ( css_provider, css_string, -1, 0 );
 
     style_context = gtk_widget_get_style_context ( text_view );
@@ -276,7 +299,7 @@ create_text_view ( void ) {
 
     text_view = gtk_text_view_new ();
     gtk_text_view_set_wrap_mode ( GTK_TEXT_VIEW ( text_view ), GTK_WRAP_WORD );
-    text_view_set_font ( text_view, font_description );
+    text_view_set_font ( text_view );
     gtk_widget_set_hexpand ( text_view, TRUE );
     gtk_widget_set_vexpand ( text_view, TRUE );
 
