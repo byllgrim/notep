@@ -5,7 +5,9 @@ GTK_INC     = `pkg-config --cflags-only-I gtk+-3.0`
 GTK_CFLAGS  = ${GTK_INC} `pkg-config --cflags-only-other gtk+-3.0`
 GTK_LDFLAGS = `pkg-config --libs gtk+-3.0`
 
-CFLAGS = -Os -Wall -Wextra -std=c99 -pedantic -lpthread ${GTK_CFLAGS}
+OPT = -Os
+#OPT = -g -O0
+CFLAGS = ${OPT} -Wall -Wextra -std=c99 -pedantic -lpthread ${GTK_CFLAGS}
 LDFLAGS = ${GTK_LDFLAGS}
 
 PREFIX = /usr/local
@@ -30,6 +32,9 @@ format:
 
 lint:
 	clang-tidy ./notep.c --fix --config-file='./lint.clang-tidy' -- ${GTK_INC}
+
+leaks:
+	valgrind --leak-check=full --show-leak-kinds=all --log-file=valgrind.log ./notep
 
 clean:
 	rm -f notep
