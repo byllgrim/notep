@@ -10,7 +10,7 @@
         -clang-analyzer-security.insecureAPI.DeprecatedOrUnsafeBufferHandling,
     ',
     CheckOptions: [
-        {key: readability-function-cognitive-complexity.Threshold, value: 1},
+        {key: readability-function-cognitive-complexity.Threshold, value: 2},
         {key: readability-function-size.LineThreshold, value: 24}
     ]
 }

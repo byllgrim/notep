@@ -40,6 +40,7 @@ unsaved_dialog ( void ) {
 
     res = gtk_dialog_run ( GTK_DIALOG ( dialog ) );
     gtk_widget_destroy ( dialog );
+
     return res;
 }
 
@@ -57,11 +58,11 @@ save_file ( void ) {
     gtk_text_buffer_get_start_iter ( buffer, start );
     gtk_text_buffer_get_end_iter ( buffer, end );
     text = gtk_text_buffer_get_text ( buffer, start, end, TRUE );
-    fprintf ( file, "%s", text );
+    (void)fprintf ( file, "%s", text );
 
     saved = 1;
     gtk_text_buffer_set_modified ( buffer, FALSE );
-    fclose ( file );
+    (void)fclose ( file );
     return YES;
 }
 
@@ -113,21 +114,28 @@ save_activate ( void ) {
     return res;
 }
 
-static gboolean
-exit_notep ( void ) {
+static int
+can_exit ( void ) {
     int prompt;
 
-    if ( gtk_text_buffer_get_modified ( buffer ) == TRUE ) {
-        prompt = unsaved_dialog ();
-        if ( prompt == YES ) {
-            prompt = save_activate ();
-        }
-        if ( prompt == CANCEL ) {
-            return TRUE;
-        }
+    if ( gtk_text_buffer_get_modified ( buffer ) == FALSE ) {
+        return 1;
     }
 
-    exit ( EXIT_SUCCESS );
+    prompt = unsaved_dialog ();
+    if ( prompt == YES ) {
+        prompt = save_activate ();
+    }
+    return ( prompt != CANCEL );
+}
+
+static gboolean
+exit_notep ( void ) {
+    if ( can_exit () ) {
+        exit ( EXIT_SUCCESS );
+    }
+
+    return TRUE;
 }
 
 static void
@@ -145,7 +153,7 @@ die ( char *msg ) {
     gtk_dialog_run ( GTK_DIALOG ( dialog ) );
     gtk_widget_destroy ( dialog );
 
-    fprintf ( stderr, "%s\n", msg );
+    (void)fprintf ( stderr, "%s\n", msg );
     exit ( EXIT_FAILURE );
 }
 
@@ -156,37 +164,26 @@ load_file ( void ) {
     char  *text;
 
     file = fopen ( filename, "r" );
-    fseek ( file, 0, SEEK_END );
+    (void)fseek ( file, 0, SEEK_END );
     length = ftell ( file );
-    fseek ( file, 0, SEEK_SET );
+    (void)fseek ( file, 0, SEEK_SET );
 
     text = malloc ( (size_t)( length + 1 ) );
     if ( fread ( text, sizeof ( char ), length, file ) != length ) {
         die ( "notep: error reading file" );
     }
     text[length] = '\0';
-    gtk_text_buffer_set_text ( buffer, text, length );
+    gtk_text_buffer_set_text ( buffer, text, (gint)length );
 
     saved = 1;
     gtk_text_buffer_set_modified ( buffer, FALSE );
-    fclose ( file );
+    (void)fclose ( file );
 }
 
 static void
-open_activate ( void ) {
+run_file_chooser_load_file ( void ) {
     GtkWidget *file_chooser;
     gint       res;
-    int        prompt;
-
-    if ( gtk_text_buffer_get_modified ( buffer ) == TRUE ) {
-        prompt = unsaved_dialog ();
-        if ( prompt == YES ) {
-            prompt = save_activate ();
-        }
-        if ( prompt == CANCEL ) {
-            return;
-        }
-    }
 
     file_chooser = gtk_file_chooser_dialog_new (
         "Open file",
@@ -206,6 +203,28 @@ open_activate ( void ) {
     }
 
     gtk_widget_destroy ( file_chooser );
+}
+
+static int
+can_open_file ( void ) {
+    int prompt;
+
+    if ( gtk_text_buffer_get_modified ( buffer ) == FALSE ) {
+        return 1;
+    }
+
+    prompt = unsaved_dialog ();
+    if ( prompt == YES ) {
+        prompt = save_activate ();
+    }
+    return ( prompt != CANCEL );
+}
+
+static void
+open_activate ( void ) {
+    if ( can_open_file () ) {
+        run_file_chooser_load_file ();
+    }
 }
 
 static void
@@ -262,7 +281,7 @@ generate_css_string ( char *str, size_t size ) {
     font_family = pango_font_description_get_family ( font_description );
     font_size   = pango_font_description_get_size ( font_description );
 
-    (void) snprintf (
+    (void)snprintf (
         str,
         size,
         "textview {"
