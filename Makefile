@@ -1,5 +1,6 @@
 # See LICENSE file for copyright and license details.
 
+
 GTK_INC     = `pkg-config --cflags-only-I gtk+-3.0`
 GTK_CFLAGS  = ${GTK_INC} `pkg-config --cflags-only-other gtk+-3.0`
 GTK_LDFLAGS = `pkg-config --libs gtk+-3.0`
@@ -8,6 +9,9 @@ CFLAGS = -Os -Wall -Wextra -std=c99 -pedantic -lpthread ${GTK_CFLAGS}
 LDFLAGS = ${GTK_LDFLAGS}
 
 PREFIX = /usr/local
+
+CLANG_CHECKS = 'clang-analyzer-*,readability-*,portability-*,performance-*,misc-*,cert-*,bugprone-*'
+
 
 compile: config.h
 	@echo CC = ${CC}
@@ -27,7 +31,7 @@ format:
 	clang-format -i --style="file:./style.clang-format" ./notep.c
 
 lint:
-	clang-tidy ./notep.c -- ${GTK_INC}
+	clang-tidy ./notep.c -checks=${CLANG_CHECKS} -- ${GTK_INC}
 
 clean:
 	rm -f notep
