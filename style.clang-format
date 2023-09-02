@@ -5,7 +5,7 @@ AlignConsecutiveDeclarations: true
 AlwaysBreakAfterReturnType: All
 BinPackArguments: false
 BinPackParameters: false
-ColumnLimit: 79
+ColumnLimit: 88
 IndentWidth: 4
 PointerAlignment: Right
 SortIncludes: CaseSensitive

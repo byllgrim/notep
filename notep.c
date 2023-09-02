@@ -192,9 +192,7 @@ open_activate ( void ) {
     res = gtk_dialog_run ( GTK_DIALOG ( file_chooser ) );
 
     if ( res == GTK_RESPONSE_ACCEPT ) {
-        filename =
-            gtk_file_chooser_get_filename ( GTK_FILE_CHOOSER ( file_chooser )
-            );
+        filename = gtk_file_chooser_get_filename ( GTK_FILE_CHOOSER ( file_chooser ) );
         load_file ();
     }
 
@@ -212,28 +210,19 @@ create_menu_bar ( void ) {
 
     open = gtk_menu_item_new_with_label ( "Open" );
     g_signal_connect (
-        G_OBJECT ( open ),
-        "button-press-event",
-        G_CALLBACK ( open_activate ),
-        NULL
+        G_OBJECT ( open ), "button-press-event", G_CALLBACK ( open_activate ), NULL
     );
     gtk_menu_shell_append ( GTK_MENU_SHELL ( menu_bar ), open );
 
     save = gtk_menu_item_new_with_label ( "Save" );
     g_signal_connect (
-        G_OBJECT ( save ),
-        "button-press-event",
-        G_CALLBACK ( save_activate ),
-        NULL
+        G_OBJECT ( save ), "button-press-event", G_CALLBACK ( save_activate ), NULL
     );
     gtk_menu_shell_append ( GTK_MENU_SHELL ( menu_bar ), save );
 
     saveas = gtk_menu_item_new_with_label ( "SaveAs" );
     g_signal_connect (
-        G_OBJECT ( saveas ),
-        "button-press-event",
-        G_CALLBACK ( saveas_activate ),
-        NULL
+        G_OBJECT ( saveas ), "button-press-event", G_CALLBACK ( saveas_activate ), NULL
     );
     gtk_menu_shell_append ( GTK_MENU_SHELL ( menu_bar ), saveas );
 
@@ -241,9 +230,7 @@ create_menu_bar ( void ) {
 }
 
 static void
-text_view_set_font (
-    GtkWidget *text_view, PangoFontDescription *font_description
-) {
+text_view_set_font ( GtkWidget *text_view, PangoFontDescription *font_description ) {
     GtkStyleContext *style_context;
     char             css_string[1024];
     const char      *font_family;
@@ -300,9 +287,7 @@ activate ( GtkApplication *app ) {
     window = gtk_application_window_new ( app );
     gtk_window_set_title ( GTK_WINDOW ( window ), "notep" );
     gtk_window_set_default_size ( GTK_WINDOW ( window ), 320, 240 );
-    g_signal_connect (
-        window, "delete-event", G_CALLBACK ( exit_notep ), NULL
-    );
+    g_signal_connect ( window, "delete-event", G_CALLBACK ( exit_notep ), NULL );
 
     grid = gtk_grid_new ();
     gtk_container_add ( GTK_CONTAINER ( window ), grid );
@@ -323,8 +308,7 @@ main ( int argc, char *argv[] ) {
     GtkApplication *app;
     int             status;
 
-    app =
-        gtk_application_new ( "byllgrim.notep", G_APPLICATION_DEFAULT_FLAGS );
+    app = gtk_application_new ( "byllgrim.notep", G_APPLICATION_DEFAULT_FLAGS );
     g_signal_connect ( app, "activate", G_CALLBACK ( activate ), NULL );
     status = g_application_run ( G_APPLICATION ( app ), argc, argv );
     g_object_unref ( app );
