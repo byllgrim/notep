@@ -10,8 +10,6 @@ LDFLAGS = ${GTK_LDFLAGS}
 
 PREFIX = /usr/local
 
-CLANG_CHECKS = 'clang-analyzer-*,readability-*,portability-*,performance-*,misc-*,cert-*,bugprone-*'
-
 
 compile: config.h
 	@echo CC = ${CC}
@@ -31,7 +29,7 @@ format:
 	clang-format -i --style="file:./style.clang-format" ./notep.c
 
 lint:
-	clang-tidy ./notep.c -checks=${CLANG_CHECKS} -- ${GTK_INC}
+	clang-tidy ./notep.c --fix --config-file='./lint.clang-tidy' -- ${GTK_INC}
 
 clean:
 	rm -f notep

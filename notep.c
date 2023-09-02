@@ -83,8 +83,9 @@ saveas_activate ( void ) {
     chooser = GTK_FILE_CHOOSER ( dialog );
     gtk_file_chooser_set_do_overwrite_confirmation ( chooser, TRUE );
 
-    if ( filename )
+    if ( filename ) {
         gtk_file_chooser_set_filename ( chooser, filename );
+    }
 
     res = gtk_dialog_run ( GTK_DIALOG ( dialog ) );
     if ( res == GTK_RESPONSE_ACCEPT ) {
@@ -103,8 +104,9 @@ static int
 save_activate ( void ) {
     int res = NO;
 
-    if ( ( gtk_text_buffer_get_modified ( buffer ) == TRUE ) || !saved )
+    if ( ( gtk_text_buffer_get_modified ( buffer ) == TRUE ) || !saved ) {
         res = saved ? save_file () : saveas_activate ();
+    }
 
     return res;
 }
@@ -115,10 +117,12 @@ exit_notep ( void ) {
 
     if ( gtk_text_buffer_get_modified ( buffer ) == TRUE ) {
         prompt = unsaved_dialog ();
-        if ( prompt == YES )
+        if ( prompt == YES ) {
             prompt = save_activate ();
-        if ( prompt == CANCEL )
+        }
+        if ( prompt == CANCEL ) {
             return TRUE;
+        }
     }
 
     exit ( EXIT_SUCCESS );
@@ -155,8 +159,9 @@ load_file ( void ) {
     fseek ( file, 0, SEEK_SET );
 
     text = malloc ( (size_t)( length + 1 ) );
-    if ( fread ( text, sizeof ( char ), length, file ) != length )
+    if ( fread ( text, sizeof ( char ), length, file ) != length ) {
         die ( "notep: error reading file" );
+    }
     text[length] = '\0';
     gtk_text_buffer_set_text ( buffer, text, length );
 
@@ -173,10 +178,12 @@ open_activate ( void ) {
 
     if ( gtk_text_buffer_get_modified ( buffer ) == TRUE ) {
         prompt = unsaved_dialog ();
-        if ( prompt == YES )
+        if ( prompt == YES ) {
             prompt = save_activate ();
-        if ( prompt == CANCEL )
+        }
+        if ( prompt == CANCEL ) {
             return;
+        }
     }
 
     file_chooser = gtk_file_chooser_dialog_new (
