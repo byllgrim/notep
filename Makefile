@@ -1,10 +1,11 @@
 # See LICENSE file for copyright and license details.
 
-GTKINC = `pkg-config --cflags gtk+-3.0`
-GTKLIB = `pkg-config --libs gtk+-3.0`
+GTK_INC     = `pkg-config --cflags-only-I gtk+-3.0`
+GTK_CFLAGS  = ${GTK_INC} `pkg-config --cflags-only-other gtk+-3.0`
+GTK_LDFLAGS = `pkg-config --libs gtk+-3.0`
 
-CFLAGS = -Os -Wall -Wextra -std=c99 -pedantic -lpthread ${GTKINC}
-LDFLAGS = ${GTKLIB}
+CFLAGS = -Os -Wall -Wextra -std=c99 -pedantic -lpthread ${GTK_CFLAGS}
+LDFLAGS = ${GTK_LDFLAGS}
 
 PREFIX = /usr/local
 
@@ -24,6 +25,9 @@ install:
 
 format:
 	clang-format -i --style="file:./style.clang-format" ./notep.c
+
+lint:
+	clang-tidy ./notep.c -- ${GTK_INC}
 
 clean:
 	rm -f notep
