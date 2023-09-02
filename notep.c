@@ -66,11 +66,9 @@ save_file ( void ) {
     return YES;
 }
 
-static int
-saveas_activate ( void ) {
-    GtkWidget      *dialog;
-    GtkFileChooser *chooser;
-    gint            res;
+GtkWidget *
+create_saveas_file_chooser_dialog ( void ) {
+    GtkWidget *dialog;
 
     dialog = gtk_file_chooser_dialog_new (
         "Save file",
@@ -83,16 +81,27 @@ saveas_activate ( void ) {
         NULL
     );
 
-    chooser = GTK_FILE_CHOOSER ( dialog );
-    gtk_file_chooser_set_do_overwrite_confirmation ( chooser, TRUE );
+    gtk_file_chooser_set_do_overwrite_confirmation (
+        GTK_FILE_CHOOSER ( dialog ), TRUE
+    );
 
     if ( filename ) {
-        gtk_file_chooser_set_filename ( chooser, filename );
+        gtk_file_chooser_set_filename ( GTK_FILE_CHOOSER ( dialog ), filename );
     }
 
-    res = gtk_dialog_run ( GTK_DIALOG ( dialog ) );
+    return dialog;
+}
+
+static int
+activate_button_saveas ( void ) {
+    GtkWidget *dialog;
+    gint       res;
+
+    dialog = create_saveas_file_chooser_dialog ();
+    res    = gtk_dialog_run ( GTK_DIALOG ( dialog ) );
+
     if ( res == GTK_RESPONSE_ACCEPT ) {
-        filename = gtk_file_chooser_get_filename ( chooser );
+        filename = gtk_file_chooser_get_filename ( GTK_FILE_CHOOSER ( dialog ) );
         save_file ();
         res = YES;
     } else {
@@ -104,14 +113,16 @@ saveas_activate ( void ) {
 }
 
 static int
-save_activate ( void ) {
-    int res = NO;
-
-    if ( ( gtk_text_buffer_get_modified ( buffer ) == TRUE ) || !saved ) {
-        res = saved ? save_file () : saveas_activate ();
+activate_button_save ( void ) {
+    if ( !filename ) {
+        return activate_button_saveas ();
     }
 
-    return res;
+    if ( gtk_text_buffer_get_modified ( buffer ) == FALSE ) {
+        return YES;
+    }
+
+    return save_file ();
 }
 
 static int
@@ -124,7 +135,7 @@ can_exit ( void ) {
 
     prompt = unsaved_dialog ();
     if ( prompt == YES ) {
-        prompt = save_activate ();
+        prompt = activate_button_save ();
     }
     return ( prompt != CANCEL );
 }
@@ -215,13 +226,13 @@ can_open_file ( void ) {
 
     prompt = unsaved_dialog ();
     if ( prompt == YES ) {
-        prompt = save_activate ();
+        prompt = activate_button_save ();
     }
     return ( prompt != CANCEL );
 }
 
 static void
-open_activate ( void ) {
+activate_button_open ( void ) {
     if ( can_open_file () ) {
         run_file_chooser_load_file ();
     }
@@ -233,7 +244,10 @@ create_button_open ( GtkWidget *menu_bar ) {
 
     open = gtk_menu_item_new_with_label ( "Open" );
     g_signal_connect (
-        G_OBJECT ( open ), "button-press-event", G_CALLBACK ( open_activate ), NULL
+        G_OBJECT ( open ),
+        "button-press-event",
+        G_CALLBACK ( activate_button_open ),
+        NULL
     );
     gtk_menu_shell_append ( GTK_MENU_SHELL ( menu_bar ), open );
 }
@@ -244,7 +258,10 @@ create_button_save ( GtkWidget *menu_bar ) {
 
     save = gtk_menu_item_new_with_label ( "Save" );
     g_signal_connect (
-        G_OBJECT ( save ), "button-press-event", G_CALLBACK ( save_activate ), NULL
+        G_OBJECT ( save ),
+        "button-press-event",
+        G_CALLBACK ( activate_button_save ),
+        NULL
     );
     gtk_menu_shell_append ( GTK_MENU_SHELL ( menu_bar ), save );
 }
@@ -255,7 +272,10 @@ create_button_saveas ( GtkWidget *menu_bar ) {
 
     saveas = gtk_menu_item_new_with_label ( "SaveAs" );
     g_signal_connect (
-        G_OBJECT ( saveas ), "button-press-event", G_CALLBACK ( saveas_activate ), NULL
+        G_OBJECT ( saveas ),
+        "button-press-event",
+        G_CALLBACK ( activate_button_saveas ),
+        NULL
     );
     gtk_menu_shell_append ( GTK_MENU_SHELL ( menu_bar ), saveas );
 }
